@@ -20,18 +20,36 @@ const createAuthStore = () => {
             const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
             return currentAppState.state
         },
-        getUserToken: () => {
+        getAuthCode: () => {
             const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            return currentAppState.userToken
+            return currentAppState.authCode
+        },
+        getAccessToken: () => {
+            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
+            return currentAppState.accessToken
+        },
+        getRefreshToken: () => {
+            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
+            return currentAppState.refreshToken
         },
         setAppState: (value: string) => {
             const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
             currentAppState.state = value
             window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
         },
-        setUserToken: (value: string) => {
+        setAuthCode: (value: string) => {
             const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            currentAppState.userToken = value
+            currentAppState.authCode = value
+            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
+        },
+        setAccessToken: (value: string) => {
+            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
+            currentAppState.accessToken = value
+            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
+        },
+        setRefreshToken: (value: string) => {
+            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
+            currentAppState.refreshToken = value
             window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
         },
     }
