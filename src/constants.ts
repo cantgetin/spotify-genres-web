@@ -1,0 +1,1 @@
+export const AUTH_NAME = 'spotify-genres-web-authState'
