@@ -3,19 +3,16 @@
     import {appAuthState} from "../../store/store";
     import axios from "axios";
     import qs from 'qs';
+    import {goto} from "$app/navigation";
 
     const code = $page.url.searchParams.get('code')
     const state = $page.url.searchParams.get('state')
-    // error	The reason authorization failed, for example: “access_denied”
     const error = $page.url.searchParams.get('error')
 
     const isCorrectState = appAuthState.getAppState() == state
 
-    // An authorization code that can be exchanged for an Access Token.
-    if (isCorrectState) appAuthState.setAuthCode(code)
-
     if (isCorrectState && !error) {
-
+        appAuthState.setAuthCode(code)
         const authBase64EncodedString = btoa(import.meta.env.VITE_SPOTIFY_CLIENT_ID + ':' + import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
 
         const data = {
@@ -36,20 +33,15 @@
             appAuthState.setAccessToken(r.data.access_token)
             appAuthState.setRefreshToken(r.data.refresh_token)
         });
+        goto('/user')
     }
 </script>
 
 <div class="authorize">
     {#if isCorrectState && !error}
-        <div class="authorized">
-            <h1>Authorized!</h1>
-            <h2>Code: {appAuthState.getAuthCode()}</h2>
-            <h2>State: {appAuthState.getAppState()}</h2>
-            <h2>Access token: {appAuthState.getAccessToken()}</h2>
-            <h2>Refresh token: {appAuthState.getRefreshToken()}</h2>
-        </div>
+        <h1>Authorized!</h1>
     {:else}
-        <h1>Something went wrong, try again!</h1>
+        <h1>Something went wrong, try again! {error}</h1>
     {/if}
 </div>
 
@@ -61,11 +53,5 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
-    }
-
-    .authorized {
-        width: 500px;
-        overflow: hidden;
-        font-size: 15px;
     }
 </style>

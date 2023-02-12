@@ -1,8 +1,8 @@
 <script lang="ts">
     import {appAuthState} from "../store/store";
     import {goto} from '$app/navigation';
-    const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const login = () => {
+        const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
         let client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
         let redirect_uri = 'http://localhost:5173/authorize';
         let state = genRanHex(16);
@@ -14,6 +14,9 @@
         goto(href);
     }
 
+    if (appAuthState.getAccessToken() != undefined){
+        goto('/user')
+    }
 </script>
 
 <div class="app">
