@@ -1,6 +1,8 @@
 interface IArtist {
+    id: string
     name: string
-    images: []
+    images: [],
+    genres: string[]
 }
 
 export default IArtist

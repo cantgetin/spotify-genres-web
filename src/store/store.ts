@@ -1,58 +1,30 @@
-// need to store here:
-// client token
-// state
-// use localstorage
-
-import { writable } from 'svelte/store';
-import {AUTH_NAME} from "../constants";
+import type { Writable } from 'svelte/store';
+import { writable, get } from 'svelte/store'
 import type IAuth from "../interfaces/IAuth";
 
-const createAuthStore = () => {
-    const {subscribe, set} = writable<IAuth>(JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}'))
+const storage = <T>(key: string, initValue: T): Writable<T> => {
+    const store = writable(initValue);
 
-    return {
-        subscribe,
-        set: (value: IAuth) => {
-            window.localStorage.setItem(AUTH_NAME, JSON.stringify(value))
-            set(value)
-        },
-        getAppState: () => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            return currentAppState.state
-        },
-        getAuthCode: () => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            return currentAppState.authCode
-        },
-        getAccessToken: () => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            return currentAppState.accessToken
-        },
-        getRefreshToken: () => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            return currentAppState.refreshToken
-        },
-        setAppState: (value: string) => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            currentAppState.state = value
-            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
-        },
-        setAuthCode: (value: string) => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            currentAppState.authCode = value
-            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
-        },
-        setAccessToken: (value: string) => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            currentAppState.accessToken = value
-            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
-        },
-        setRefreshToken: (value: string) => {
-            const currentAppState : IAuth = JSON.parse(window.localStorage.getItem(AUTH_NAME) || '{}')
-            currentAppState.refreshToken = value
-            window.localStorage.setItem(AUTH_NAME, JSON.stringify(currentAppState))
-        },
-    }
+    const storedValueStr = localStorage.getItem(key);
+    if (storedValueStr != null) store.set(JSON.parse(storedValueStr));
+
+    store.subscribe((val) => {
+        if (val == undefined) {
+            localStorage.removeItem(key)
+        } else {
+            localStorage.setItem(key, JSON.stringify(val))
+        }
+    })
+
+    window.addEventListener('storage', () => {
+        const storedValueStr = localStorage.getItem(key);
+        if (storedValueStr == null) return;
+
+        const localValue: T = JSON.parse(storedValueStr)
+        if (localValue !== get(store)) store.set(localValue);
+    });
+
+    return store;
 }
 
-export const appAuthState = createAuthStore()
+export const appAuthState = storage<IAuth>("auth", {state : '', authCode: '', accessToken: '', refreshToken: '',})

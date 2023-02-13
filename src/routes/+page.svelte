@@ -8,13 +8,13 @@
         let state = genRanHex(16);
         let scope = 'user-read-private user-read-email user-top-read playlist-read-private';
 
-        appAuthState.setAppState(state)
+        $appAuthState.state = state
 
         let href = `https://accounts.spotify.com/authorize?response_type=code&client_id=${client_id}&scope=${scope}&redirect_uri=${redirect_uri}&state=${state}`;
         goto(href);
     }
 
-    if (appAuthState.getAccessToken() != undefined){
+    if ($appAuthState.accessToken != ''){
         goto('/user')
     }
 </script>
