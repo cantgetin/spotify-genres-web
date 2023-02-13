@@ -1,7 +1,8 @@
 <script lang="ts">
     import {page} from '$app/stores'
     import {appAuthState} from "../../store/store";
-    import axios, {AxiosResponse} from "axios";
+    import axios from "axios";
+    import type {AxiosResponse} from 'axios';
     import qs from 'qs';
     import {goto} from "$app/navigation";
 
@@ -30,6 +31,7 @@
             url: 'https://accounts.spotify.com/api/token'
         };
         axios(options).then((r: AxiosResponse<{access_token: string, refresh_token: string}>) => {
+            console.log(r.data)
             $appAuthState.accessToken = r.data.access_token
             $appAuthState.refreshToken = r.data.refresh_token
             goto('/user')

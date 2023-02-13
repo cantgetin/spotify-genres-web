@@ -7,16 +7,25 @@
     import type ITrack from "../../interfaces/ITrack";
 
     let user: IUser
-    let artists: IArtist[] = []
+    let artists: Omit<IArtist, "genres">[] = []
     let tracks: ITrack[] = []
     let artistsIds: string[]
     let artistsFull: IArtist[] = []
+    let topGenres: string[] = []
+    let loaded = false
 
     axios.get('https://api.spotify.com/v1/me', {
         headers: {
             "Authorization": 'Bearer ' + $appAuthState.accessToken
         }
     }).then((r: AxiosResponse<IUser>) => user = r.data);
+
+
+    axios.get('https://api.spotify.com/v1/me/top/tracks?limit=10', {
+        headers: {
+            "Authorization": 'Bearer ' + $appAuthState.accessToken
+        }
+    }).then((r: AxiosResponse<{ items: ITrack[] }>) => tracks = r.data.items);
 
     axios.get('https://api.spotify.com/v1/me/top/artists?limit=10', {
         headers: {
@@ -33,82 +42,86 @@
             }
         }).then((r: AxiosResponse<{ artists: IArtist[] }>) => {
             artistsFull = r.data.artists
-            console.log(artistsFull)
+            for(let i = 0; i<artistsFull.length; i++){
+                for(let j =0; j<artistsFull[i].genres.length; j++){
+                    topGenres.push(artistsFull[i].genres[j])
+                }
+            }
+            loaded = true
         });
     });
-
-    axios.get('https://api.spotify.com/v1/me/top/tracks?limit=10', {
-        headers: {
-            "Authorization": 'Bearer ' + $appAuthState.accessToken
-        }
-    }).then((r: AxiosResponse<{ items: ITrack[] }>) => tracks = r.data.items);
 
 </script>
 
 <div class="user">
-    <!--    <h1>{$appAuthState.state}</h1>-->
-    <!--    <h1>{$appAuthState.accessToken}</h1>-->
-    <!--    <h1>{$appAuthState.authCode}</h1>-->
-    <!--    <h1>{$appAuthState.refreshToken}</h1>-->
-    {#if user && artists && tracks}
+    {#if loaded}
         <div>
             <h1>Welcome, {user.display_name}!</h1>
             <img src="{user.images[0].url}"/>
         </div>
         <div>
             <h1>Your top artists:</h1>
-            {#each artists as artist}
-                <div class="artist">
-                    <img src="{artist.images[0].url}" height="50px" width="50px"/>
-                    <div>{artist.name}</div>
-                </div>
-            {/each}
+            <div class="list">
+                {#each artists as artist}
+                    <div class="item">
+                        <img src="{artist.images[0].url}" height="50px" width="50px"/>
+                        <span>{artist.name}</span>
+                    </div>
+                {/each}
+            </div>
         </div>
         <div>
             <h1>Your top tracks:</h1>
-            {#each tracks as track}
-                <div class="track">
-                    <img src="{track.album.images[0].url}" height="50px" width="50px"/>
-                    <div>
-                        <div>{track.name}</div>
-                        <div class="artist">
-                            {#each track.artists as artist}
-                                <div>{artist.name}</div>
-                            {/each}
+            <div class="list">
+                {#each tracks as track}
+                    <div class="item">
+                        <img src="{track.album.images[0].url}" height="50px" width="50px"/>
+                        <div>
+                            <span>{track.name}</span>
+                            <div class="item">
+                                {#each track.artists as artist}
+                                    <div>{artist.name}</div>
+                                {/each}
+                            </div>
                         </div>
                     </div>
-                </div>
-            {/each}
+                {/each}
+            </div>
         </div>
         <div>
             <h1>Your top genres:</h1>
-            <div>
-            {#each artistsFull as artist}
-                {#each artist.genres as genre}
-                    <p>{genre}</p>
+            <div class="list">
+                {#each topGenres.slice(0,10) as genre}
+                    <div class="item">
+                        <div style="background: green; height: 50px; width: 50px"></div>
+                        <span>{genre}</span>
+                    </div>
                 {/each}
-            {/each}
             </div>
         </div>
     {/if}
 </div>
 
-<style>
-    .user {
-        padding: 50px;
-        display: flex;
-        gap: 50px;
-    }
+<style lang="scss">
+  .user {
+    padding: 50px;
+    display: flex;
+    gap: 50px;
+  }
 
-    .artist {
-        display: flex;
-        color: #7f7f7f;
-        gap: 5px;
-    }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
 
-    .track {
-        display: flex;
-        color: white;
-        gap: 5px;
+  .item {
+    display: flex;
+    color: #7f7f7f;
+    gap: 5px;
+
+    span {
+      color: white;
     }
+  }
 </style>
