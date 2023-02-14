@@ -1,68 +1,30 @@
 <script lang="ts">
     import {appAuthState} from "../../store/store";
-    import axios from "axios";
-    import type {AxiosResponse} from 'axios';
-    import type IUser from "../../interfaces/IUser";
-    import type IArtist from "../../interfaces/IArtist";
-    import type ITrack from "../../interfaces/ITrack";
+    import type {IUserData} from '../../interfaces/IUserData'
+    import {getUserData} from "../../store/userStore";
+    import type {IStoreState} from "../../interfaces/IStoreState";
 
-    let user: IUser
-    let artists: Omit<IArtist, "genres">[] = []
-    let tracks: ITrack[] = []
-    let artistsIds: string[]
-    let artistsFull: IArtist[] = []
-    let topGenres: string[] = []
-    let loaded = false
+    let user: IStoreState<IUserData>
 
-    axios.get('https://api.spotify.com/v1/me', {
-        headers: {
-            "Authorization": 'Bearer ' + $appAuthState.accessToken
-        }
-    }).then((r: AxiosResponse<IUser>) => user = r.data);
-
-
-    axios.get('https://api.spotify.com/v1/me/top/tracks?limit=10', {
-        headers: {
-            "Authorization": 'Bearer ' + $appAuthState.accessToken
-        }
-    }).then((r: AxiosResponse<{ items: ITrack[] }>) => tracks = r.data.items);
-
-    axios.get('https://api.spotify.com/v1/me/top/artists?limit=10', {
-        headers: {
-            "Authorization": 'Bearer ' + $appAuthState.accessToken
-        }
-    }).then((r: AxiosResponse<{ items: IArtist[] }>) => {
-        artists = r.data.items
-        artistsIds = artists.map(a => a.id)
-        let artistsIdsString = artistsIds.join(',')
-
-        axios.get(`https://api.spotify.com/v1/artists?ids=${artistsIdsString}`, {
-            headers: {
-                "Authorization": 'Bearer ' + $appAuthState.accessToken
-            }
-        }).then((r: AxiosResponse<{ artists: IArtist[] }>) => {
-            artistsFull = r.data.artists
-            for(let i = 0; i<artistsFull.length; i++){
-                for(let j =0; j<artistsFull[i].genres.length; j++){
-                    topGenres.push(artistsFull[i].genres[j])
-                }
-            }
-            loaded = true
-        });
-    });
+    getUserData($appAuthState.accessToken)
+        .then((value: IStoreState<IUserData>) => {
+            user = value
+            console.log(value)
+        })
+        .catch(er => console.log(er))
 
 </script>
 
 <div class="user">
-    {#if loaded}
+    {#if user}
         <div>
-            <h1>Welcome, {user.display_name}!</h1>
-            <img src="{user.images[0].url}"/>
+            <h1>Welcome, {user.data.display_name}!</h1>
+            <img src="{user.data.images[0].url}"/>
         </div>
         <div>
             <h1>Your top artists:</h1>
             <div class="list">
-                {#each artists as artist}
+                {#each user.data.topArtists as artist}
                     <div class="item">
                         <img src="{artist.images[0].url}" height="50px" width="50px"/>
                         <span>{artist.name}</span>
@@ -73,7 +35,7 @@
         <div>
             <h1>Your top tracks:</h1>
             <div class="list">
-                {#each tracks as track}
+                {#each user.data.topTracks as track}
                     <div class="item">
                         <img src="{track.album.images[0].url}" height="50px" width="50px"/>
                         <div>
@@ -88,17 +50,8 @@
                 {/each}
             </div>
         </div>
-        <div>
-            <h1>Your top genres:</h1>
-            <div class="list">
-                {#each topGenres.slice(0,10) as genre}
-                    <div class="item">
-                        <div style="background: green; height: 50px; width: 50px"></div>
-                        <span>{genre}</span>
-                    </div>
-                {/each}
-            </div>
-        </div>
+    {:else}
+        <h1>lol</h1>
     {/if}
 </div>
 

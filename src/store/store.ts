@@ -2,7 +2,7 @@ import type { Writable } from 'svelte/store';
 import { writable, get } from 'svelte/store'
 import type IAuth from "../interfaces/IAuth";
 
-const storage = <T>(key: string, initValue: T): Writable<T> => {
+export const storage = <T>(key: string, initValue: T): Writable<T> => {
     const store = writable(initValue);
 
     const storedValueStr = localStorage.getItem(key);
