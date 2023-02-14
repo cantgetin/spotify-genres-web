@@ -18,11 +18,15 @@
 <div class="user">
     {#if user}
         <div>
-            <h1>Welcome, {user.data.display_name}!</h1>
-            <img src="{user.data.images[0].url}"/>
+            <h1><a href="{user.data.uri}">{user.data.display_name}</a></h1>
+            <img src="{user.data.images[0].url}" height="250px" width="250px" style="border: 3px solid white"/>
+            <div class="user-info">
+                <h4>Country: {user.data.country}</h4>
+                <h4>Product: {user.data.product}</h4>
+            </div>
         </div>
         <div>
-            <h1>Your top artists:</h1>
+            <h1>Your top artists</h1>
             <div class="list">
                 {#each user.data.topArtists as artist}
                     <div class="item">
@@ -33,7 +37,7 @@
             </div>
         </div>
         <div>
-            <h1>Your top tracks:</h1>
+            <h1>Your top tracks</h1>
             <div class="list">
                 {#each user.data.topTracks as track}
                     <div class="item">
@@ -57,9 +61,23 @@
 
 <style lang="scss">
   .user {
-    padding: 50px;
     display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 50px;
+    flex-wrap: wrap;
+    height: 100vh;
+    width: 100vw;
+
+    h1 {
+      a {
+        color: white;
+      }
+    }
+  }
+  .user-info {
+    display: flex;
+    gap: 20px;
   }
 
   .list {

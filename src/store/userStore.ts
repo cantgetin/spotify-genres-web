@@ -20,8 +20,8 @@ export const userStore = storage<IStoreState<IUserData>>("user", initialState)
 let user: IStoreState<IUserData>
 
 async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | undefined> {
-    // Get value from writable
     try {
+        // Get value from writable
         userStore.subscribe((value) => {
             user = value;
         });
@@ -49,12 +49,14 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
             }
         }).then((r: AxiosResponse<{ items: ITrack[] }>) => r.data.items)
 
+        // get user top artists
         const p3 = axios.get('https://api.spotify.com/v1/me/top/artists?limit=10', {
             headers: {
                 "Authorization": 'Bearer ' + accessToken
             }
         }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items);
 
+        // when all 3 promises completed update userStore
         Promise.all([p1,p2,p3]).then((val: [IUser, ITrack[], IArtist[]] ) => {
             userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
             return user
