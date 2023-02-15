@@ -9,6 +9,8 @@
     <nav style="position: absolute">
         <a href="/user">User</a>
         <a href="/genres">Genres</a>
+        <a href="/playlists">Playlists</a>
+        <a href="/favorites">Favorites</a>
     </nav>
 
     <PageTransition pathname={data.pathname}>

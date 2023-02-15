@@ -1,75 +1,52 @@
 <script lang="ts">
-    import type IArtist from "../../interfaces/IArtist";
+    import {getGenresData} from "../../store/genresStore";
+    import {authStore} from "../../store/authStore";
+    import type {IStoreState} from "../../interfaces/app/IStoreState";
+    import type IGenresData from "../../interfaces/app/IGenresData";
 
-    interface IGenre {
-        name: string
-        color: string
-    }
+    let genres: IStoreState<IGenresData>
 
-    let artistsIds: string[]
-    let artistsFull: IArtist[] = []
-    let topGenres: IGenre[] = [
-        {name: 'Pop', color: "aqua"},
-        {name: 'Rap', color: "green"},
-        {name: 'Rock', color: "red"},
-        {name: 'Jazz', color: "purple"},
-        {name: 'Hip-Hop', color: "black"},
-        {name: 'Electro', color: "grey"},
-        {name: 'Dance', color: "brown"},
-        {name: 'EDM', color: "orange"},
-        {name: 'DnB', color: "slate"},
-        {name: 'Classic', color: "pink"},
-    ]
+    getGenresData($authStore.accessToken)
+        .then((value: IStoreState<IGenresData>) => {
+            console.log(value)
+            genres = value
+        })
+        .catch(er => console.log(er))
 
-
-    // artistsIds = artists.map(a => a.id)
-    // let artistsIdsString = artistsIds.join(',')
-    //
-    // axios.get(`https://api.spotify.com/v1/artists?ids=${artistsIdsString}`, {
-    //     headers: {
-    //         "Authorization": 'Bearer ' + $appAuthState.accessToken
-    //     }
-    // }).then((r: AxiosResponse<{ artists: IArtist[] }>) => {
-    //     artistsFull = r.data.artists
-    //     for (let i = 0; i < artistsFull.length; i++) {
-    //         for (let j = 0; j < artistsFull[i].genres.length; j++) {
-    //             topGenres.push(artistsFull[i].genres[j])
-    //         }
-    //     }
-    //     loaded = true
-    // });
 </script>
 
 <div class="genres">
-    <div>
-        <h1>Your best genre</h1>
-        <div style="background: aqua; height: 250px; width: 250px; border: 3px solid white;"></div>
-        <h1>Rap</h1>
-    </div>
-    <div>
-        <h1>Your top genres</h1>
-        <div class="list">
-            {#each topGenres.slice(0, 10) as genre}
-                <div class="item">
-                    <div style="background: {genre.color}; height: 50px; width: 50px"></div>
-                    <span>{genre.name}</span>
-                    <div>15%</div>
-                </div>
-            {/each}
+    {#if genres}
+        <div>
+            <h1>Your best genre</h1>
+            <div style="background: {genres.data.bestGenre.color}; height: 250px; width: 250px; border: 3px solid white;"></div>
+            <h1>{genres.data.bestGenre.name}</h1>
         </div>
-    </div>
-    <div>
-        <h1>Number of tracks</h1>
-        <div class="list">
-            {#each topGenres.slice(0, 10) as genre}
-                <div class="item">
-                    <div style="background: {genre.color}; height: 50px; width: 50px"></div>
-                    <span>{genre.name}</span>
-                    <div>1,932 tracks</div>
-                </div>
-            {/each}
+        <div>
+            <h1>Your top genres</h1>
+            <div class="list">
+                {#each genres.data.topGenres as genre}
+                    <div class="item">
+                        <div style="background: {genre.color}; height: 50px; width: 50px"></div>
+                        <span>{genre.name}</span>
+                        <div>{genre.presencePercent}</div>
+                    </div>
+                {/each}
+            </div>
         </div>
-    </div>
+        <div>
+            <h1>Number of artists</h1>
+            <div class="list">
+                {#each genres.data.topGenres as genre}
+                    <div class="item">
+                        <div style="background: {genre.color}; height: 50px; width: 50px"></div>
+                        <span>{genre.name}</span>
+                        <div>{genre.numberOfArtists} artists</div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">

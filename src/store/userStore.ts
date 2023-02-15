@@ -1,12 +1,13 @@
-import type IUser from "../interfaces/IUser";
+import type IUser from "../interfaces/api/IUser";
 import {storage} from "./store";
-import type {IStoreState} from "../interfaces/IStoreState";
+import type {IStoreState} from "../interfaces/app/IStoreState";
 import {LoadingState} from "../enums/LoadingState";
-import type {AxiosResponse} from "axios"
+import type {AxiosError, AxiosResponse} from "axios"
 import axios from "axios";
-import type ITrack from "../interfaces/ITrack";
-import type IArtist from "../interfaces/IArtist";
-import type IUserData from "../interfaces/IUserData";
+import type ITrack from "../interfaces/api/ITrack";
+import type IArtist from "../interfaces/api/IArtist";
+import type IUserData from "../interfaces/app/IUserData";
+import {exchangeAuthCodeForAccessAndRefreshTokens, exchangeRefreshTokenForAccessToken} from "./authStore";
 
 const initialState: IStoreState<IUserData> = {
     data: null,
@@ -54,12 +55,16 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                 headers: {
                     "Authorization": 'Bearer ' + accessToken
                 }
-            }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items);
+            }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items)
 
             // when all 3 promises completed update userStore
             Promise.all([p1,p2,p3]).then((val: [IUser, ITrack[], IArtist[]] ) => {
                 userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
                 resolve(user)
+            }).catch((er) => {
+                // handle other types of errors
+                console.log('access token expired. obtaining new one')
+                exchangeRefreshTokenForAccessToken()
             })
 
         } catch (error: any) {

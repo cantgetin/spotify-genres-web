@@ -1,5 +1,5 @@
 import {storage} from "./store";
-import type IAuth from "../interfaces/IAuth";
+import type IAuth from "../interfaces/app/IAuth";
 import {goto} from "$app/navigation";
 import qs from "qs";
 import axios from "axios";
@@ -58,6 +58,30 @@ export const exchangeAuthCodeForAccessAndRefreshTokens = (code: string) => {
     axios(options).then((r: AxiosResponse<{ access_token: string, refresh_token: string }>) => {
         auth.accessToken = r.data.access_token
         auth.refreshToken = r.data.refresh_token
+        authStore.set(auth)
+        goto('/user')
+    })
+}
+export const exchangeRefreshTokenForAccessToken = () => {
+    authStore.subscribe((value) => {
+        auth = value;
+    });
+    const authBase64EncodedString = btoa(import.meta.env.VITE_SPOTIFY_CLIENT_ID + ':' + import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
+    const data = {
+        refresh_token: auth.refreshToken,
+        grant_type: 'refresh_token'
+    };
+    const options = {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + authBase64EncodedString
+        },
+        data: qs.stringify(data),
+        url: 'https://accounts.spotify.com/api/token'
+    };
+    axios(options).then((r: AxiosResponse<{ access_token: string}>) => {
+        auth.accessToken = r.data.access_token
         authStore.set(auth)
         goto('/user')
     })

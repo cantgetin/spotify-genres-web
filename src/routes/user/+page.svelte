@@ -1,8 +1,8 @@
 <script lang="ts">
     import {authStore} from "../../store/authStore";
-    import type {IUserData} from '../../interfaces/IUserData'
+    import type {IUserData} from '../../interfaces/app/IUserData'
     import {getUserData} from "../../store/userStore";
-    import type {IStoreState} from "../../interfaces/IStoreState";
+    import type {IStoreState} from "../../interfaces/app/IStoreState";
 
     let user: IStoreState<IUserData>
 
