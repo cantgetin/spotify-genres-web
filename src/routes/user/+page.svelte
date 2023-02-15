@@ -1,15 +1,15 @@
 <script lang="ts">
-    import {appAuthState} from "../../store/store";
+    import {authStore} from "../../store/authStore";
     import type {IUserData} from '../../interfaces/IUserData'
     import {getUserData} from "../../store/userStore";
     import type {IStoreState} from "../../interfaces/IStoreState";
 
     let user: IStoreState<IUserData>
 
-    getUserData($appAuthState.accessToken)
+    getUserData($authStore.accessToken)
         .then((value: IStoreState<IUserData>) => {
             user = value
-            console.log(value)
+            //console.log(value)
         })
         .catch(er => console.log(er))
 

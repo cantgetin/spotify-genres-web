@@ -1,20 +1,8 @@
 <script lang="ts">
-    import {appAuthState} from "../store/store";
     import {goto} from '$app/navigation';
-    const login = () => {
-        const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-        let client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-        let redirect_uri = 'http://localhost:5173/authorize';
-        let state = genRanHex(16);
-        let scope = 'user-read-private user-read-email user-top-read playlist-read-private';
+    import {authorize, authStore} from "../store/authStore";
 
-        $appAuthState.state = state
-
-        let href = `https://accounts.spotify.com/authorize?response_type=code&client_id=${client_id}&scope=${scope}&redirect_uri=${redirect_uri}&state=${state}`;
-        goto(href);
-    }
-
-    if ($appAuthState.accessToken != ''){
+    if ($authStore.accessToken != ''){
         goto('/user')
     }
 </script>
@@ -22,7 +10,7 @@
 <div class="app">
     <div>
         <h1>Welcome to Spotify Genres</h1>
-        <button on:click={login}>Click to authorize</button>
+        <button on:click={authorize}>Click to authorize</button>
     </div>
 </div>
 

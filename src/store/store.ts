@@ -1,7 +1,5 @@
 import type { Writable } from 'svelte/store';
 import { writable, get } from 'svelte/store'
-import type IAuth from "../interfaces/IAuth";
-
 export const storage = <T>(key: string, initValue: T): Writable<T> => {
     const store = writable(initValue);
 
@@ -26,5 +24,3 @@ export const storage = <T>(key: string, initValue: T): Writable<T> => {
 
     return store;
 }
-
-export const appAuthState = storage<IAuth>("auth", {state : '', authCode: '', accessToken: '', refreshToken: '',})
