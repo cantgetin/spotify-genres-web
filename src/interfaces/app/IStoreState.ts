@@ -1,4 +1,4 @@
-import {LoadingState} from "../enums/LoadingState";
+import {LoadingState} from "../../enums/LoadingState";
 
 interface IStoreState<T> {
     data: T | null;
