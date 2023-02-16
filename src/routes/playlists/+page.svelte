@@ -1,5 +1,10 @@
 <div class="playlists">
-    <h1>Playlists</h1>
+    <div>
+        <h1>Best playlist</h1>
+    </div>
+    <div>
+        <h1>Most listened playlists</h1>
+    </div>
 </div>
 
 <style lang="scss">

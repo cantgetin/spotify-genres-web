@@ -32,41 +32,41 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                 // If data cached in localStorage then return it
                 resolve(user)
             }
+            else {
+                // If the data is not cached, fetch it from the API
+                userStore.set({data: null, loading: LoadingState.Pending, error: null})
 
-            // If the data is not cached, fetch it from the API
-            userStore.set({data: null, loading: LoadingState.Pending, error: null})
+                // get user info
+                const p1 = axios.get('https://api.spotify.com/v1/me', {
+                    headers: {
+                        "Authorization": 'Bearer ' + accessToken
+                    }
+                }).then((r: AxiosResponse<IUser>) => r.data)
 
-            // get user info
-            const p1 = axios.get('https://api.spotify.com/v1/me', {
-                headers: {
-                    "Authorization": 'Bearer ' + accessToken
-                }
-            }).then((r: AxiosResponse<IUser>) => r.data)
+                // get user top tracks
+                const p2 = axios.get('https://api.spotify.com/v1/me/top/tracks?limit=10', {
+                    headers: {
+                        "Authorization": 'Bearer ' + accessToken
+                    }
+                }).then((r: AxiosResponse<{ items: ITrack[] }>) => r.data.items)
 
-            // get user top tracks
-            const p2 = axios.get('https://api.spotify.com/v1/me/top/tracks?limit=10', {
-                headers: {
-                    "Authorization": 'Bearer ' + accessToken
-                }
-            }).then((r: AxiosResponse<{ items: ITrack[] }>) => r.data.items)
+                // get user top artists
+                const p3 = axios.get('https://api.spotify.com/v1/me/top/artists?limit=10', {
+                    headers: {
+                        "Authorization": 'Bearer ' + accessToken
+                    }
+                }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items)
 
-            // get user top artists
-            const p3 = axios.get('https://api.spotify.com/v1/me/top/artists?limit=10', {
-                headers: {
-                    "Authorization": 'Bearer ' + accessToken
-                }
-            }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items)
-
-            // when all 3 promises completed update userStore
-            Promise.all([p1,p2,p3]).then((val: [IUser, ITrack[], IArtist[]] ) => {
-                userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
-                resolve(user)
-            }).catch((er) => {
-                // handle other types of errors
-                console.log('access token expired. obtaining new one')
-                exchangeRefreshTokenForAccessToken()
-            })
-
+                // when all 3 promises completed update userStore
+                Promise.all([p1,p2,p3]).then((val: [IUser, ITrack[], IArtist[]] ) => {
+                    userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
+                    resolve(user)
+                }).catch((er) => {
+                    // handle other types of errors
+                    console.log('access token expired. obtaining new one')
+                    exchangeRefreshTokenForAccessToken()
+                })
+            }
         } catch (error: any) {
             userStore.set({data: null, loading: LoadingState.Failed, error: error.message});
             throw(error.message)
