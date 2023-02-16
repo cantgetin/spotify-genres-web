@@ -7,6 +7,7 @@ import type ITrack from "../interfaces/api/ITrack";
 import type IArtist from "../interfaces/api/IArtist";
 import type IGenresData from "../interfaces/app/IGenresData";
 import type IGenre from "../interfaces/app/IGenre";
+import stc from 'string-to-color'
 
 const genresStore = storage<IStoreState<IGenresData>>("genres", {data: null, loading: LoadingState.Idle, error: null})
 
@@ -27,17 +28,6 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                 // If the data is not cached, fetch it from the API
                 genresStore.set({data: null, loading: LoadingState.Pending, error: null})
 
-                const stringToColor = (str: string) => {
-                    let hash = 0;
-                    for (let i = 0; i < str.length; i++) {
-                        hash = str.charCodeAt(i) + ((hash << 3) - hash);
-                    }
-                    const color = Math.abs(hash).toString(16).substring(0, 6);
-
-                    return "#" + '000000'.substring(0, 6 - color.length) + color;
-                }
-
-
                 // get user 50 top artists
                 const p1 = axios.get('https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50', {
                     headers: {
@@ -53,38 +43,64 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                 }).then((r: AxiosResponse<{ items: ITrack[] }>) => r.data.items)
 
                 Promise.all([p1, p2]).then((val: [IArtist[], ITrack[]]) => {
-                    const topGenres: string[] = []
 
-                    for (let i = 0; i < val[0].length; i++) {
-                        for (let j = 0; j < val[0][i].genres.length; j++) {
-                            topGenres.push(val[0][i].genres[j])
+                    let userTopArtists: IArtist[] = val[0]
+                    const userTopTracks: ITrack[] = val[1]
+                    let artistsFromTopTracksIds: string[] = []
+
+                    // getting artist ids from top tracks
+                    for (let i = 0; i < userTopTracks.length; i++) {
+                        for (let j = 0; j < userTopTracks[i].artists.length; j++) {
+                            artistsFromTopTracksIds.push(userTopTracks[i].artists[j].id)
                         }
                     }
 
-                    // count duplicated genres
-                    const count = topGenres.reduce((ac: any, a: any) => (ac[a] = ac[a] + 1 || 1, ac), {})
-                    //
-                    let result: IGenre[] = []
-                    Object.keys(count).forEach(key => {
-                        result.push({
-                            name: key,
-                            color: '',
-                            presencePercent: ((count[key] / topGenres.length) * 100).toFixed(2) + '%',
-                            numberOfArtists: count[key]
+                    // remove duplicated ids
+                    artistsFromTopTracksIds = [...new Set(artistsFromTopTracksIds)];
+
+                    const artistsIdsString = (artistsFromTopTracksIds.length > 50) ? artistsFromTopTracksIds.slice(0,50).join(',') : artistsFromTopTracksIds.join(',')
+
+                    // getting artists from top tracks from api
+                    axios.get(`https://api.spotify.com/v1/artists?ids=${artistsIdsString}`, {
+                        headers: {
+                            "Authorization": 'Bearer ' + accessToken
+                        }
+                    }).then((r: AxiosResponse<{ artists: IArtist[] }>) => {
+                        userTopArtists = userTopArtists.concat(r.data.artists)
+                        // adding genres
+                        const topGenres: string[] = []
+
+                        for (let i = 0; i < userTopArtists.length; i++) {
+                            for (let j = 0; j < userTopArtists[i].genres.length; j++) {
+                                topGenres.push(userTopArtists[i].genres[j])
+                            }
+                        }
+
+                        // count duplicated genres
+                        const count = topGenres.reduce((ac: any, a: any) => (ac[a] = ac[a] + 1 || 1, ac), {})
+
+                        let result: IGenre[] = []
+                        Object.keys(count).forEach(key => {
+                            result.push({
+                                name: key,
+                                color: '',
+                                presencePercent: ((count[key] / topGenres.length) * 100).toFixed(2) + '%',
+                                numberOfArtists: count[key]
+                            })
+                        });
+                        result = result.sort(({numberOfArtists: a}, {numberOfArtists: b}) => b - a).slice(0, 10)
+                        result.forEach((el) => {
+                            el.color = stc(el.name)
                         })
+
+                        genres.data = {
+                            topGenres: result,
+                            bestGenre: result[0]
+                        }
+
+                        genresStore.set(genres)
+                        resolve(genres)
                     });
-                    result = result.sort(({numberOfArtists: a}, {numberOfArtists: b}) => b - a).slice(0, 10)
-                    result.forEach((el) => {
-                        el.color = stringToColor(el.name)
-                    })
-
-                    genres.data = {
-                        topGenres: result,
-                        bestGenre: result[0]
-                    }
-
-                    genresStore.set(genres)
-                    resolve(genres)
                 })
             }
         } catch (error: any) {
