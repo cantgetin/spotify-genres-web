@@ -9,11 +9,15 @@
     getUserData($authStore.accessToken)
         .then((value: IStoreState<IUserData>) => {
             user = value
-            //console.log(value)
+            console.log(user)
         })
         .catch(er => console.log(er))
 
 </script>
+
+<svelte:head>
+    <title>User</title>
+</svelte:head>
 
 <div class="user">
     {#if user}
@@ -55,7 +59,7 @@
             </div>
         </div>
     {:else}
-        <h1>lol</h1>
+        <h1>Could not get user data</h1>
     {/if}
 </div>
 
@@ -75,6 +79,7 @@
       }
     }
   }
+
   .user-info {
     display: flex;
     gap: 20px;

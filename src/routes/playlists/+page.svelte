@@ -14,6 +14,10 @@
 
 </script>
 
+<svelte:head>
+    <title>Playlists</title>
+</svelte:head>
+
 <div class="playlists">
     {#if playlists}
         <div style="max-width: 260px">
@@ -56,6 +60,8 @@
                 {/each}
             </div>
         </div>
+    {:else}
+        <h1>Could not get playlists data</h1>
     {/if}
 </div>
 

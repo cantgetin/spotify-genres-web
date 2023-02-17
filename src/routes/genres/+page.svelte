@@ -8,12 +8,16 @@
 
     getGenresData($authStore.accessToken)
         .then((value: IStoreState<IGenresData>) => {
-            console.log(value)
             genres = value
+            console.log(genres)
         })
         .catch(er => console.log(er))
 
 </script>
+
+<svelte:head>
+    <title>Genres</title>
+</svelte:head>
 
 <div class="genres">
     {#if genres}
@@ -46,6 +50,8 @@
                 {/each}
             </div>
         </div>
+    {:else}
+        <h1>Could not get genres data</h1>
     {/if}
 </div>
 

@@ -17,7 +17,7 @@ export const authorize = () => {
     const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
     const redirect_uri = 'http://localhost:5173/authorize';
     const state = generateRandomHex(16);
-    const scope = 'user-read-private user-read-email user-top-read playlist-read-private';
+    const scope = 'user-read-private user-read-email user-top-read playlist-read-private user-library-read';
 
     auth.state = state
     authStore.set(auth)

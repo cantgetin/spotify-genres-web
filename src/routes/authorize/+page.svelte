@@ -16,6 +16,11 @@
 
 </script>
 
+<svelte:head>
+    <title>Authorization..</title>
+    <html lang="en" />
+</svelte:head>
+
 <div class="authorize">
     {#if isCorrectState && !error}
         <h1>Authorized!</h1>

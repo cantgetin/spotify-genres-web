@@ -1,5 +1,46 @@
+<script lang="ts">
+    import {getFavoritesData} from "../../store/favoritesStore";
+    import {authStore} from "../../store/authStore";
+    import type {IStoreState} from "../../interfaces/app/IStoreState";
+    import type IFavoritesData from "../../interfaces/app/IFavoritesData";
+
+
+    let favorites : IStoreState<IFavoritesData>
+
+    getFavoritesData($authStore.accessToken)
+        .then((value: IStoreState<IFavoritesData>) => {
+            favorites = value
+            console.log(favorites)
+        })
+        .catch(er => console.log(er))
+
+</script>
+
+<svelte:head>
+    <title>Favorites</title>
+</svelte:head>
+
 <div class="favorites">
-    <h1>Favourites</h1>
+    {#if favorites}
+        <div>
+            <h1>Your favorite track</h1>
+            <img style="height: 250px; width: 250px" src={favorites.data.topTrack.album.images[0].url}/>
+            <h1>{favorites.data.topTrack.name}</h1>
+        </div>
+        <div class="list">
+            <h1>Your favourite tracks</h1>
+            <div class="list">
+                {#each favorites.data.topTracks as track}
+                    <div class="item">
+                        <img style="height: 50px; width: 50px" src={track.track.album.images[0].url}/>
+                        <span>{track.track.name}</span>
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {:else}
+        <h1>Could not get favorites data</h1>
+    {/if}
 </div>
 
 <style lang="scss">
@@ -11,5 +52,21 @@
     flex-wrap: wrap;
     height: 100vh;
     width: 100vw;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .item {
+    display: flex;
+    color: #7f7f7f;
+    gap: 5px;
+
+    span {
+      color: white;
+    }
   }
 </style>
