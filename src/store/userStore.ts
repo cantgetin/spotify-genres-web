@@ -62,9 +62,10 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                     userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
                     resolve(user)
                 }).catch((er) => {
-                    // handle other types of errors
-                    console.log('access token expired. obtaining new one')
-                    exchangeRefreshTokenForAccessToken()
+                    if (er.response.data.error.message.includes('token')) {
+                        console.log('access token expired. obtaining new one')
+                        exchangeRefreshTokenForAccessToken()
+                    }
                 })
             }
         } catch (error: any) {

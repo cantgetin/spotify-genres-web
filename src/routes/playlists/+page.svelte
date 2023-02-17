@@ -1,39 +1,62 @@
 <script lang="ts">
-    const playlists = [
-        {name: 'Playlist1', color: 'blue'},
-        {name: 'Playlist1', color: 'red'},
-        {name: 'Playlist1', color: 'aqua'},
-        {name: 'Playlist1', color: 'green'},
-        {name: 'Playlist1', color: 'pink'},
-        {name: 'Playlist1', color: 'blue'},
-        {name: 'Playlist1', color: 'blue'},
-        {name: 'Playlist1', color: 'blue'},
-        {name: 'Playlist1', color: 'blue'},
-        {name: 'Playlist1', color: 'blue'},
-    ]
+    import type {IStoreState} from "../../interfaces/app/IStoreState";
+    import type IPlaylistsData from "../../interfaces/app/IPlaylistsData";
+    import {getPlaylistsData} from "../../store/playlistsStore";
+    import {authStore} from "../../store/authStore";
+
+    let playlists: IStoreState<IPlaylistsData>
+
+    getPlaylistsData($authStore.accessToken)
+        .then((value: IStoreState<IPlaylistsData>) => {
+            playlists = value
+            console.log(playlists)
+        }).catch(er => console.log(er))
 
 </script>
 
 <div class="playlists">
-    <div>
-        <h1>Best playlist</h1>
-        <img height="250px" width="250px" style="border: 3px solid white; background: aqua"/>
-        <div class="user-info">
-            <h4>1,932 tracks</h4>
-            <h4>1233 hours listened</h4>
-        </div>
-    </div>
-    <div>
-        <h1>Most listened playlists</h1>
-        <div class="list">
-            {#each playlists as playlist}
+    {#if playlists}
+        <div style="max-width: 260px">
+            <h1>Your best playlist</h1>
+            <img src={playlists.data.mostListenedPlaylist.images[0].url} height="250px" width="250px"
+                 style="border: 3px solid white; background: aqua"/>
+            <div class="user-info">
+                <h1>{playlists.data.mostListenedPlaylist.name}</h1>
                 <div class="item">
-                    <div style="height: 50px; width: 50px; background: {playlist.color}"></div>
-                    <span>{playlist.name}</span>
+                    <div>{playlists.data.mostListenedPlaylist.tracks.total} tracks,</div>
+                    <div>{playlists.data.mostListenedPlaylist.popularity} loved tracks</div>
                 </div>
-            {/each}
+            </div>
         </div>
-    </div>
+        <div>
+            <h1>Most listened playlists</h1>
+            <div class="list">
+                {#each playlists.data.topPlaylists.sort((a, b) => b.popularity - a.popularity).slice(0, 10) as playlist}
+                    <div class="item">
+                        <img src={playlist.images[0].url} height="50px" width="50px"/>
+                        <div>
+                            <span>{playlist.name}</span>
+                            <div>{playlist.popularity > 0 ? `${playlist.popularity} loved tracks` : ''}</div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+        <div>
+            <h1>Number of tracks</h1>
+            <div class="list">
+                {#each playlists.data.topPlaylists.sort((a, b) => b.tracks.total - a.tracks.total).slice(0, 10) as playlist}
+                    <div class="item">
+                        <img src={playlist.images[0].url} height="50px" width="50px"/>
+                        <div>
+                            <span>{playlist.name}</span>
+                            <div>{playlist.tracks.total} tracks</div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+    {/if}
 </div>
 
 <style lang="scss">

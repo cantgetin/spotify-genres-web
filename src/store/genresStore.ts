@@ -8,6 +8,7 @@ import type IArtist from "../interfaces/api/IArtist";
 import type IGenresData from "../interfaces/app/IGenresData";
 import type IGenre from "../interfaces/app/IGenre";
 import stc from 'string-to-color'
+import {exchangeRefreshTokenForAccessToken} from "./authStore";
 
 const genresStore = storage<IStoreState<IGenresData>>("genres", {data: null, loading: LoadingState.Idle, error: null})
 
@@ -101,6 +102,11 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                         genresStore.set(genres)
                         resolve(genres)
                     });
+                }).catch(er => {
+                    if (er.response.data.error.message.includes('token')) {
+                        console.log('access token expired. obtaining new one')
+                        exchangeRefreshTokenForAccessToken()
+                    }
                 })
             }
         } catch (error: any) {
