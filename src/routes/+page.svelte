@@ -34,6 +34,7 @@
         border: none;
         border-radius: 25px;
         cursor: pointer;
+        transition: 0.5s;
     }
     button:hover {
         transform: scale(104%);

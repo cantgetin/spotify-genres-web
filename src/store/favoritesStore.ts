@@ -46,11 +46,9 @@ async function fetchData(accessToken: string): Promise<IStoreState<IFavoritesDat
                         topTracks : r.data.items.slice(0,10)
                     }
 
-                    console.log('lol')
                     favoritesStore.set(favorites)
                     resolve(favorites)
                 }).catch(er => {
-                    console.log(er)
                     if (er.response.data.error.message.includes('token')) {
                         console.log('access token expired. obtaining new one')
                         exchangeRefreshTokenForAccessToken()

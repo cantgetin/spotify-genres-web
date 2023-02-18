@@ -5,7 +5,7 @@
     import type IFavoritesData from "../../interfaces/app/IFavoritesData";
 
 
-    let favorites : IStoreState<IFavoritesData>
+    let favorites: IStoreState<IFavoritesData>
 
     getFavoritesData($authStore.accessToken)
         .then((value: IStoreState<IFavoritesData>) => {
@@ -23,17 +23,30 @@
 <div class="favorites">
     {#if favorites}
         <div>
-            <h1>Your favorite track</h1>
-            <img style="height: 250px; width: 250px" src={favorites.data.topTrack.album.images[0].url}/>
+            <h1>Last favorite track</h1>
+            <img style="height: 250px; width: 250px; border: 3px solid white;"
+                 src={favorites.data.topTrack.album.images[0].url}/>
             <h1>{favorites.data.topTrack.name}</h1>
+            <div class="item">
+                {#each favorites.data.topTrack.artists as artist}
+                    <div>{artist.name}</div>
+                {/each}
+            </div>
         </div>
         <div class="list">
-            <h1>Your favourite tracks</h1>
+            <h1>Recently favorite</h1>
             <div class="list">
                 {#each favorites.data.topTracks as track}
                     <div class="item">
-                        <img style="height: 50px; width: 50px" src={track.track.album.images[0].url}/>
-                        <span>{track.track.name}</span>
+                        <img style="height: 50px; width: 50px;" src={track.track.album.images[0].url}/>
+                        <div>
+                            <span>{track.track.name}</span>
+                            <div class="item">
+                                {#each track.track.artists as artist}
+                                    <div>{artist.name}</div>
+                                {/each}
+                            </div>
+                        </div>
                     </div>
                 {/each}
             </div>

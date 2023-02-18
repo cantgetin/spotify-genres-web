@@ -17,12 +17,14 @@
 </script>
 
 <div class="layout">
-    <nav class="nav">
-        <a on:click={() => navigate('/user')} class={index === 0 ? 'navItemSelected' : 'navItem'}>User</a>
-        <a on:click={() => navigate('/genres')} class={index === 1 ? 'navItemSelected' : 'navItem'}>Genres</a>
-        <a on:click={() => navigate('/playlists')} class={index === 2 ? 'navItemSelected' : 'navItem'}>Playlists</a>
-        <a on:click={() => navigate('/favorites')} class={index === 3 ? 'navItemSelected' : 'navItem'}>Favorites</a>
-    </nav>
+    {#if routes.indexOf(data.pathname) !== -1}
+        <nav class="nav">
+            <a on:click={() => navigate('/user')} class={index === 0 ? 'navItemSelected' : 'navItem'}>User</a>
+            <a on:click={() => navigate('/genres')} class={index === 1 ? 'navItemSelected' : 'navItem'}>Genres</a>
+            <a on:click={() => navigate('/playlists')} class={index === 2 ? 'navItemSelected' : 'navItem'}>Playlists</a>
+            <a on:click={() => navigate('/favorites')} class={index === 3 ? 'navItemSelected' : 'navItem'}>Favorites</a>
+        </nav>
+    {/if}
     <PageTransition pathname={data.pathname}>
         <slot/>
     </PageTransition>
