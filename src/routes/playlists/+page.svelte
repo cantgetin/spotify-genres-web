@@ -3,6 +3,7 @@
     import type IPlaylistsData from "../../interfaces/app/IPlaylistsData";
     import {getPlaylistsData} from "../../store/playlistsStore";
     import {authStore} from "../../store/authStore";
+    import {Circle} from "svelte-loading-spinners";
 
     let playlists: IStoreState<IPlaylistsData>
 
@@ -61,7 +62,7 @@
             </div>
         </div>
     {:else}
-        <h1>Could not get playlists data</h1>
+        <Circle size="60" color="white" unit="px" duration="1s" />
     {/if}
 </div>
 
@@ -74,6 +75,7 @@
     flex-wrap: wrap;
     height: 100vh;
     width: 100vw;
+    overflow-y: auto;
   }
 
   .list {

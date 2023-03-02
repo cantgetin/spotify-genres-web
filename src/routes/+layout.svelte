@@ -46,6 +46,7 @@
 
   .navItem {
     color: white;
+    background: #121212;
     text-decoration: none;
     padding: 10px;
     display: block;

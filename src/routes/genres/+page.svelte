@@ -3,6 +3,7 @@
     import {authStore} from "../../store/authStore";
     import type {IStoreState} from "../../interfaces/app/IStoreState";
     import type IGenresData from "../../interfaces/app/IGenresData";
+    import {Circle} from "svelte-loading-spinners";
 
     let genres: IStoreState<IGenresData>
 
@@ -51,7 +52,7 @@
             </div>
         </div>
     {:else}
-        <h1>Could not get genres data</h1>
+        <Circle size="60" color="white" unit="px" duration="1s" />
     {/if}
 </div>
 
@@ -64,6 +65,7 @@
     flex-wrap: wrap;
     height: 100vh;
     width: 100vw;
+    overflow-y: auto;
   }
 
   .list {

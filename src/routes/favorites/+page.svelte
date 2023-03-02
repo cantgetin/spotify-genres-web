@@ -3,6 +3,7 @@
     import {authStore} from "../../store/authStore";
     import type {IStoreState} from "../../interfaces/app/IStoreState";
     import type IFavoritesData from "../../interfaces/app/IFavoritesData";
+    import {Circle} from "svelte-loading-spinners";
 
 
     let favorites: IStoreState<IFavoritesData>
@@ -52,7 +53,7 @@
             </div>
         </div>
     {:else}
-        <h1>Could not get favorites data</h1>
+        <Circle size="60" color="white" unit="px" duration="1s" />
     {/if}
 </div>
 
@@ -65,6 +66,7 @@
     flex-wrap: wrap;
     height: 100vh;
     width: 100vw;
+    overflow-y: auto;
   }
 
   .list {
