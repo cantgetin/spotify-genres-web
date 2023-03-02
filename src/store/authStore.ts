@@ -15,7 +15,7 @@ export const authorize = () => {
     });
     const generateRandomHex = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
     const client_id = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const redirect_uri = 'http://localhost:5173/authorize';
+    const redirect_uri = import.meta.env.VITE_REDIRECT_URI;
     const state = generateRandomHex(16);
     const scope = 'user-read-private user-read-email user-top-read playlist-read-private user-library-read';
 
@@ -43,7 +43,7 @@ export const exchangeAuthCodeForAccessAndRefreshTokens = (code: string) => {
     const authBase64EncodedString = btoa(import.meta.env.VITE_SPOTIFY_CLIENT_ID + ':' + import.meta.env.VITE_SPOTIFY_CLIENT_SECRET)
     const data = {
         code: code,
-        redirect_uri: 'http://localhost:5173/authorize',
+        redirect_uri: import.meta.env.VITE_REDIRECT_URI,
         grant_type: 'authorization_code'
     };
     const options = {
