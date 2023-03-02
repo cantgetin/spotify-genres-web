@@ -8,11 +8,13 @@ import type ITrack from "../interfaces/api/ITrack";
 import type IArtist from "../interfaces/api/IArtist";
 import type IUserData from "../interfaces/app/IUserData";
 import {exchangeAuthCodeForAccessAndRefreshTokens, exchangeRefreshTokenForAccessToken} from "./authStore";
+import {dateDiffInDays} from "../utils/dateDiff";
 
 const initialState: IStoreState<IUserData> = {
     data: null,
     loading: LoadingState.Idle,
-    error: null
+    error: null,
+    dateLoaded: null
 };
 
 // Create a storage
@@ -28,13 +30,12 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                 user = value;
             });
 
-            if (user.data != null) {
+            if (user.data != null  && dateDiffInDays(new Date, new Date(Date.parse(user.dateLoaded!.toString()))) < 2) {
                 // If data cached in localStorage then return it
                 resolve(user)
-            }
-            else {
+            } else {
                 // If the data is not cached, fetch it from the API
-                userStore.set({data: null, loading: LoadingState.Pending, error: null})
+                userStore.set({data: null, loading: LoadingState.Pending, error: null, dateLoaded: null})
 
                 // get user info
                 const p1 = axios.get('https://api.spotify.com/v1/me', {
@@ -58,8 +59,13 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                 }).then((r: AxiosResponse<{ items: IArtist[] }>) => r.data.items)
 
                 // when all 3 promises completed update userStore
-                Promise.all([p1,p2,p3]).then((val: [IUser, ITrack[], IArtist[]] ) => {
-                    userStore.set({data: {...val[0], topTracks: val[1], topArtists: val[2]}, loading: LoadingState.Succeeded, error: null})
+                Promise.all([p1, p2, p3]).then((val: [IUser, ITrack[], IArtist[]]) => {
+                    userStore.set({
+                        data: {...val[0], topTracks: val[1], topArtists: val[2]},
+                        loading: LoadingState.Succeeded,
+                        error: null,
+                        dateLoaded: new Date()
+                    })
                     resolve(user)
                 }).catch((er) => {
                     if (er.response.data.error.message.includes('token')) {
@@ -69,7 +75,7 @@ async function fetchData(accessToken: string): Promise<IStoreState<IUserData> | 
                 })
             }
         } catch (error: any) {
-            userStore.set({data: null, loading: LoadingState.Failed, error: error.message});
+            userStore.set({data: null, loading: LoadingState.Failed, error: error.message, dateLoaded: null});
             throw(error.message)
         }
     })

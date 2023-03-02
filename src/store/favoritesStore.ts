@@ -6,11 +6,13 @@ import axios from "axios";
 import type ITrack from "../interfaces/api/ITrack";
 import type IFavoritesData from "../interfaces/app/IFavoritesData";
 import {exchangeRefreshTokenForAccessToken} from "./authStore";
+import {dateDiffInDays} from "../utils/dateDiff";
 
 const initialState: IStoreState<IFavoritesData> = {
     data: null,
     loading: LoadingState.Idle,
-    error: null
+    error: null,
+    dateLoaded: null
 };
 
 // Create a storage
@@ -27,26 +29,29 @@ async function fetchData(accessToken: string): Promise<IStoreState<IFavoritesDat
                 favorites = value;
             });
 
-            if (favorites.data != null) {
-                // If data cached in localStorage then return it
+            if (favorites.data != null && dateDiffInDays(new Date, new Date(Date.parse(favorites.dateLoaded!.toString()))) < 2) {
+                // If data cached in localStorage and it's fresh then return it
                 resolve(favorites)
-            }
-            else {
+            } else {
                 // If the data is not cached, fetch it from the API
-                favoritesStore.set({data: null, loading: LoadingState.Pending, error: null})
+                favoritesStore.set({data: null, loading: LoadingState.Pending, error: null, dateLoaded: null})
 
                 axios.get('https://api.spotify.com/v1/me/tracks', {
                     headers: {
                         "Authorization": 'Bearer ' + accessToken
                     }
-                }).then((r: AxiosResponse<{items: { track: ITrack }[]}>) => {
+                }).then((r: AxiosResponse<{ items: { track: ITrack }[] }>) => {
 
-                    favorites.data = {
-                        topTrack : r.data.items[0].track,
-                        topTracks : r.data.items.slice(0,10)
-                    }
+                    favoritesStore.set({
+                        data: {
+                            topTrack: r.data.items[0].track,
+                            topTracks: r.data.items.slice(0, 10)
+                        },
+                        loading: LoadingState.Succeeded,
+                        error: null,
+                        dateLoaded: new Date()
+                    })
 
-                    favoritesStore.set(favorites)
                     resolve(favorites)
                 }).catch(er => {
                     if (er.response.data.error.message.includes('token')) {
@@ -54,10 +59,10 @@ async function fetchData(accessToken: string): Promise<IStoreState<IFavoritesDat
                         exchangeRefreshTokenForAccessToken()
                     }
                 })
-                
+
             }
         } catch (error: any) {
-            favoritesStore.set({data: null, loading: LoadingState.Failed, error: error.message});
+            favoritesStore.set({data: null, loading: LoadingState.Failed, error: error.message, dateLoaded: null});
             throw(error.message)
         }
     })

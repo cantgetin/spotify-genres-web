@@ -9,8 +9,9 @@ import type IGenresData from "../interfaces/app/IGenresData";
 import type IGenre from "../interfaces/app/IGenre";
 import stc from 'string-to-color'
 import {exchangeRefreshTokenForAccessToken} from "./authStore";
+import {dateDiffInDays} from "../utils/dateDiff";
 
-const genresStore = storage<IStoreState<IGenresData>>("genres", {data: null, loading: LoadingState.Idle, error: null})
+const genresStore = storage<IStoreState<IGenresData>>("genres", {data: null, loading: LoadingState.Idle, error: null, dateLoaded: null})
 
 let genres: IStoreState<IGenresData>
 
@@ -22,12 +23,12 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                 genres = value;
             });
 
-            if (genres.data != null) {
+            if (genres.data != null  && dateDiffInDays(new Date, new Date(Date.parse(genres.dateLoaded!.toString()))) < 2) {
                 // If data cached in localStorage then return it
                 resolve(genres)
             } else {
                 // If the data is not cached, fetch it from the API
-                genresStore.set({data: null, loading: LoadingState.Pending, error: null})
+                genresStore.set({data: null, loading: LoadingState.Pending, error: null, dateLoaded: null})
 
                 // get user 50 top artists
                 const p1 = axios.get('https://api.spotify.com/v1/me/top/artists?time_range=long_term&limit=50', {
@@ -94,12 +95,16 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                             el.color = stc(el.name)
                         })
 
-                        genres.data = {
-                            topGenres: result,
-                            bestGenre: result[0]
-                        }
+                        genresStore.set({
+                            data: {
+                                topGenres: result,
+                                bestGenre: result[0]
+                            },
+                            loading: LoadingState.Succeeded,
+                            error: null,
+                            dateLoaded: new Date()
+                        })
 
-                        genresStore.set(genres)
                         resolve(genres)
                     });
                 }).catch(er => {
@@ -110,7 +115,7 @@ async function fetchData(accessToken: string): Promise<IStoreState<IGenresData> 
                 })
             }
         } catch (error: any) {
-            genresStore.set({data: null, loading: LoadingState.Failed, error: error.message});
+            genresStore.set({data: null, loading: LoadingState.Failed, error: error.message,dateLoaded: new Date()});
             throw(error.message)
         }
     })
