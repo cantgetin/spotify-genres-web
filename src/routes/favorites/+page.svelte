@@ -23,7 +23,7 @@
 
 <div class="favorites">
     {#if favorites}
-        <div>
+        <div class="section">
             <h1>Last favorite track</h1>
             <img style="height: 250px; width: 250px; border: 3px solid white;"
                  src={favorites.data.topTrack.album.images[0].url}/>
@@ -34,7 +34,7 @@
                 {/each}
             </div>
         </div>
-        <div class="list">
+        <div class="section">
             <h1>Recently favorite</h1>
             <div class="list">
                 {#each favorites.data.topTracks as track}
@@ -42,7 +42,7 @@
                         <img style="height: 50px; width: 50px;" src={track.track.album.images[0].url}/>
                         <div>
                             <span>{track.track.name}</span>
-                            <div class="item">
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px">
                                 {#each track.track.artists as artist}
                                     <div>{artist.name}</div>
                                 {/each}
@@ -64,9 +64,13 @@
     align-items: center;
     gap: 50px;
     flex-wrap: wrap;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
     overflow-y: auto;
+  }
+
+  .section {
+    width: 250px;
   }
 
   .list {

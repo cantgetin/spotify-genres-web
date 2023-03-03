@@ -22,7 +22,7 @@
 
 <div class="user">
     {#if user}
-        <div>
+        <div class="section">
             <h1><a href="{user.data.uri}">{user.data.display_name}</a></h1>
             <img src="{user.data.images[0].url}" height="250px" width="250px" style="border: 3px solid white"/>
             <div class="user-info">
@@ -30,7 +30,7 @@
                 <h4>Product: {user.data.product}</h4>
             </div>
         </div>
-        <div>
+        <div class="section">
             <h1>Your top artists</h1>
             <div class="list">
                 {#each user.data.topArtists as artist}
@@ -41,7 +41,7 @@
                 {/each}
             </div>
         </div>
-        <div>
+        <div class="section">
             <h1>Your top tracks</h1>
             <div class="list">
                 {#each user.data.topTracks as track}
@@ -49,7 +49,7 @@
                         <img src="{track.album.images[0].url}" height="50px" width="50px"/>
                         <div>
                             <span>{track.name}</span>
-                            <div class="item">
+                            <div>
                                 {#each track.artists as artist}
                                     <div>{artist.name}</div>
                                 {/each}
@@ -71,7 +71,7 @@
     align-items: center;
     gap: 50px;
     flex-wrap: wrap;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
     overflow-y: auto;
 
@@ -80,6 +80,10 @@
         color: white;
       }
     }
+  }
+
+  .section {
+    width: 250px;
   }
 
   .user-info {

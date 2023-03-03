@@ -21,7 +21,7 @@
 
 <div class="playlists">
     {#if playlists}
-        <div style="max-width: 260px">
+        <div class="section">
             <h1>Your best playlist</h1>
             <img src={playlists.data.mostListenedPlaylist.images[0].url} height="250px" width="250px"
                  style="border: 3px solid white; background: aqua"/>
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div class="section">
             <h1>Most listened playlists</h1>
             <div class="list">
                 {#each playlists.data.topPlaylists.sort((a, b) => b.popularity - a.popularity).slice(0, 10) as playlist}
@@ -47,7 +47,7 @@
                 {/each}
             </div>
         </div>
-        <div>
+        <div class="section">
             <h1>Number of tracks</h1>
             <div class="list">
                 {#each playlists.data.topPlaylists.sort((a, b) => b.tracks.total - a.tracks.total).slice(0, 10) as playlist}
@@ -73,9 +73,13 @@
     align-items: center;
     gap: 50px;
     flex-wrap: wrap;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
     overflow-y: auto;
+  }
+
+  .section {
+    width: 250px;
   }
 
   .list {

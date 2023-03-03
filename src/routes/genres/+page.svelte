@@ -22,37 +22,41 @@
 
 <div class="genres">
     {#if genres}
-        <div>
+        <div class="section">
             <h1>Your best genre</h1>
             <div style="background: {genres.data.bestGenre.color}; height: 250px; width: 250px; border: 3px solid white;"></div>
             <h1>{genres.data.bestGenre.name}</h1>
         </div>
-        <div>
+        <div class="section">
             <h1>Your top genres</h1>
             <div class="list">
                 {#each genres.data.topGenres as genre}
                     <div class="item">
                         <div style="background: {genre.color}; height: 50px; width: 50px"></div>
-                        <span>{genre.name}</span>
-                        <div>{genre.presencePercent}</div>
+                        <div>
+                            <span>{genre.name}</span>
+                            <div>{genre.presencePercent}</div>
+                        </div>
                     </div>
                 {/each}
             </div>
         </div>
-        <div>
+        <div class="section">
             <h1>Number of artists</h1>
             <div class="list">
                 {#each genres.data.topGenres as genre}
                     <div class="item">
                         <div style="background: {genre.color}; height: 50px; width: 50px"></div>
-                        <span>{genre.name}</span>
-                        <div>{genre.numberOfArtists} artists</div>
+                        <div>
+                            <span>{genre.name}</span>
+                            <div>{genre.numberOfArtists} artists</div>
+                        </div>
                     </div>
                 {/each}
             </div>
         </div>
     {:else}
-        <Circle size="60" color="white" unit="px" duration="1s" />
+        <Circle size="60" color="white" unit="px" duration="1s"/>
     {/if}
 </div>
 
@@ -63,9 +67,13 @@
     align-items: center;
     gap: 50px;
     flex-wrap: wrap;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
     overflow-y: auto;
+  }
+
+  .section {
+    width: 250px;
   }
 
   .list {
