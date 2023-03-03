@@ -23,6 +23,7 @@
     }
     h1 {
         font-size: 48px;
+        text-align: center;
     }
     button {
         color: #121212;

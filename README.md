@@ -11,6 +11,13 @@ scss
 
 ## Run
 
+#### Create .env and set this variables
+VITE_SPOTIFY_CLIENT_ID\
+VITE_SPOTIFY_CLIENT_SECRET\
+VITE_REDIRECT_URI
+
+Register and get your client id/secret [here](https://developer.spotify.com/)
+
 ```bash
 # install dependencies
 npm install
